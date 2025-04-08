@@ -10,19 +10,12 @@
       max-width: 600px;
       margin: auto;
       text-align: center;
+      direction: rtl;
     }
     input, button {
       padding: 10px;
       font-size: 16px;
       margin: 10px;
-    }
-    iframe {
-      width: 100%;
-      height: 400px;
-      border: none;
-      margin-top: 20px;
-      border: 1px solid;
-      border-radius: 6px;
     }
   </style>
 </head>
@@ -31,6 +24,12 @@
   <input type="text" id="wordInput" placeholder="کلمه را وارد کنید..." />
   <button onclick="fetchAudio()">دانلود</button>
   <p id="status"></p>
+
+  <div>
+      <span>اگر با خطا مواجه شدید وارد این</span>
+      <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank">لینک</a>
+      <span>شده و روی دکمه Request temporary access to the demo server کلیک کنید</span>   
+  </div>
 
   <script>
     async function fetchAudio() {
@@ -43,7 +42,6 @@
         return;
       }
 
-      const corsProxy = 'https://cors-anywhere.herokuapp.com/';
       const url = `https://www.ldoceonline.com/dictionary/${encodeURIComponent(word)}`;
 
       try {
@@ -53,9 +51,9 @@
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, 'text/html');
 
-        const span = doc.querySelector('span.speaker.brefile');
+        const span = doc.querySelector('span.speaker.amefile');
         if (!span) {
-          status.textContent = 'تلفظ بریتانیایی یافت نشد.';
+          status.textContent = 'تلفظ American یافت نشد.';
           return;
         }
 
@@ -91,7 +89,5 @@
     });
   </script>
 
-  <!-- اضافه کردن iframe برای فعالسازی CORS -->
-  <iframe src="https://cors-anywhere.herokuapp.com/corsdemo" title="CORS Anywhere Demo"></iframe>
 </body>
 </html>
