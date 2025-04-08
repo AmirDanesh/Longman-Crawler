@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Longman MP3 Downloader</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 40px;
+      max-width: 600px;
+      margin: auto;
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h2>دانلود تلفظ از دیکشنری لانگمن</h2>
+  <input type="text" id="wordInput" placeholder="کلمه را وارد کنید..." />
+  <button onclick="fetchAudio()">دانلود</button>
+  <p id="status"></p>
+
+  <script>
+    async function fetchAudio() {
+      const word = document.getElementById('wordInput').value.trim();
+      const status = document.getElementById('status');
+      status.textContent = 'در حال دریافت اطلاعات...';
+
+      if (!word) {
+        status.textContent = 'لطفاً یک کلمه وارد کنید.';
+        return;
+      }
+
+      const corsProxy = 'https://cors-anywhere.herokuapp.com/';
+      const url = `https://www.ldoceonline.com/dictionary/${encodeURIComponent(word)}`;
+
+      try {
+        const res = await fetch(url);
+        const html = await res.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        const span = doc.querySelector('span.speaker.brefile');
+        if (!span) {
+          status.textContent = 'تلفظ آمریکایی یافت نشد.';
+          return;
+        }
+
+        const audioUrl = span.getAttribute('data-src-mp3');
+        if (!audioUrl) {
+          status.textContent = 'فایل MP3 یافت نشد.';
+          return;
+        }
+
+        // دانلود فایل MP3
+        const audioRes = await fetch(audioUrl);
+        const audioBlob = await audioRes.blob();
+        const audioUrlBlob = URL.createObjectURL(audioBlob);
+
+        // ساخت لینک برای دانلود خودکار
+        const link = document.createElement('a');
+        link.href = audioUrlBlob;
+        link.download = `${word}.mp3`;
+        link.click();  // دانلود خودکار
+
+        status.textContent = `فایل دانلود شد.`;
+
+      } catch (err) {
+        status.textContent = `خطا: ${err}`;
+      }
+    }
+
+    // اضافه کردن event listener برای فشار دادن Enter
+    document.getElementById('wordInput').addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        fetchAudio(); // فراخوانی تابع هنگام فشار دادن Enter
+      }
+    });
+  </script>
+</body>
+</html>
